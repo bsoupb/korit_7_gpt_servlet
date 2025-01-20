@@ -13,7 +13,7 @@
 </head>
 <body>
     <h1>사용자 등록</h1>
-    <form action="" method="post">
+    <form action="http://localhost:8080/servlet_study_war/user" method="post">
         <table>
             <tr>
                 <td>username</td>
