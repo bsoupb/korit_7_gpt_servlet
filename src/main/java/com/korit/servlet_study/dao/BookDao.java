@@ -145,7 +145,7 @@ public class BookDao {
                         .bookName(rs.getString("book_name"))
                         .isbn(rs.getString("isbn"))
                         .authorId(rs.getInt("author_id"))
-//                                .author(rs.getString("author_name"))
+                                .author(new Author(rs.getInt("author_id"), rs.getString("author_name")))
                         .publisherId(rs.getInt("publisher_id"))
                         .categoryId(rs.getInt("category_id"))
                         .bookImgUrl((rs.getString("book_img_url")))
