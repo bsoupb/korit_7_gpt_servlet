@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.korit.servlet_study.dao.BoardDao;
 import com.korit.servlet_study.dto.InsertBoardDto;
 import com.korit.servlet_study.entity.Board;
+import com.korit.servlet_study.service.BoardService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,10 +16,10 @@ import java.io.IOException;
 
 @WebServlet("/api/board")
 public class BoardRestServlet extends HttpServlet {
-    private BoardDao boardDao;
+    private BoardService boardService;
 
     public BoardRestServlet() {
-        boardDao = BoardDao.getInstance();
+        boardService = BoardService.getInstance();
     }
 
 
@@ -26,11 +27,6 @@ public class BoardRestServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         StringBuilder stringBuilder = new StringBuilder();
 
-        Board board = Board.builder()
-                .boardId("board_Id")
-                .title("title")
-                .content("content")
-                .build();
 
 
         try(BufferedReader bufferedReader = request.getReader()){
@@ -41,7 +37,10 @@ public class BoardRestServlet extends HttpServlet {
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
+        // json -> java
+        // writeValue()
+        // : java -> json
         InsertBoardDto insertBoardDto = objectMapper.readValue(stringBuilder.toString(), InsertBoardDto.class);
-        System.out.println(insertBoardDto);
+        boardService.insertBoard(insertBoardDto);
     }
 }

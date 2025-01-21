@@ -6,26 +6,27 @@ import com.korit.servlet_study.entity.Board;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Optional;
 
 public class BoardDao {
     private DBConnectionMgr mgr;
-    private static BoardDao boardDao;
+    private static BoardDao instance;
 
     private BoardDao() {
         mgr = DBConnectionMgr.getInstance();
     }
 
     public static BoardDao getInstance() {
-        if (boardDao == null) {
-            boardDao = new BoardDao();
+        if (instance == null) {
+            instance = new BoardDao();
         }
-        return boardDao;
+        return instance;
     }
 
 
     public Optional<Board> save(Board board) {
-
+        Board insertedBoard = null;
         Connection con = null;
         PreparedStatement ps = null;
 
@@ -36,16 +37,27 @@ public class BoardDao {
                         board_tb
                         values(default, ?, ?)                    
                     """;
-            ps = con.prepareStatement(sql);
+            ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, board.getTitle());
             ps.setString(2, board.getContent());
             ps.executeUpdate();
 
-            return Optional.ofNullable(board);
+            ResultSet rs = ps.getGeneratedKeys();
+            if(rs.next()) {
+                insertedBoard = Board.builder()
+                        .boardId(rs.getInt(1))
+                        .title(board.getTitle())
+                        .content(board.getContent())
+                        .build();
+            }
 
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            mgr.freeConnection(con, ps);
         }
+
+        return Optional.ofNullable(insertedBoard);
     }
 
 }
