@@ -3,6 +3,7 @@ package com.korit.servlet_study.servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.korit.servlet_study.dao.BoardDao;
 import com.korit.servlet_study.dto.InsertBoardDto;
+import com.korit.servlet_study.dto.ResponseDto;
 import com.korit.servlet_study.entity.Board;
 import com.korit.servlet_study.service.BoardService;
 
@@ -41,6 +42,11 @@ public class BoardRestServlet extends HttpServlet {
         // writeValue()
         // : java -> json
         InsertBoardDto insertBoardDto = objectMapper.readValue(stringBuilder.toString(), InsertBoardDto.class);
-        boardService.insertBoard(insertBoardDto);
+        ResponseDto<?> responseDto = boardService.insertBoard(insertBoardDto);
+        String responseJson = objectMapper.writeValueAsString(responseDto);
+
+        response.setStatus(responseDto.getStatus());
+        response.setContentType("application/json");
+        response.getWriter().println(responseJson);
     }
 }
