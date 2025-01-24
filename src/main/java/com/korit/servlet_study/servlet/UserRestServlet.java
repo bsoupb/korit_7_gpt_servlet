@@ -1,7 +1,10 @@
 package com.korit.servlet_study.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.korit.servlet_study.dto.ResponseDto;
 import com.korit.servlet_study.entity.User;
+import com.korit.servlet_study.security.annotation.JwtValid;
+import com.korit.servlet_study.service.UserService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -12,24 +15,29 @@ import java.io.IOException;
 
 @WebServlet("/api/user")
 public class UserRestServlet extends HttpServlet {
+    private UserService userService;
 
+    public UserRestServlet() {
+        userService = UserService.getInstance();
+    }
+
+    @JwtValid
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        User user = User.builder()
-                .username("test")
-                .password("1234")
-                .name("테스트")
-                .email("test@gmail.com")
-                .build();
 
-        String jsonUser = objectMapper.writeValueAsString(user);
+
+        String userIdParam = req.getParameter("userId");
+        int userId = Integer.parseInt(userIdParam);
+        ResponseDto<?> responseDto = userService.getUser(userId);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonUser = objectMapper.writeValueAsString(responseDto);
         System.out.println(jsonUser);
 
-//        resp.setHeader("Access-Control-Allow-Origin", "*");
-//        resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-//        resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
-//        resp.setHeader("Access-Control-Allow-Credentials", "true");
+        resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        resp.setHeader("Access-Control-Allow-Credentials", "true");
 
         resp.setContentType("application/json");
         resp.getWriter().println(jsonUser);
